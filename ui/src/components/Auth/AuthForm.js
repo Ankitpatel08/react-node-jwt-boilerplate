@@ -2,6 +2,7 @@ import { useState, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/api';
 import AuthContext from '../../store/auth-context';
+import { localStorageSave } from '../../util/helper-functions';
 
 import classes from './AuthForm.module.scss';
 
@@ -43,8 +44,17 @@ const AuthForm = () => {
         const expirationTime = new Date(new Date().getTime() + 3600000);
         authCtx.login(res.data.jwtToken, expirationTime.toISOString());
 
+        localStorageSave('user', {
+          firstName: res.data.firstName,
+          lastName: res.data.lastName,
+          emailId: res.data.emailId
+        });
+
         navigate('/profile');
-      }).catch(err => console.log(err));
+      }).catch(err => {
+        setIsLoading(false);
+        console.log(err);
+      });
     } else {
       const enteredFirstName = firstNameInputRef.current.value;
       const enteredLastName = lastNameInputRef.current.value;
@@ -60,7 +70,10 @@ const AuthForm = () => {
         switchAuthModeHandler();
 
         console.log(res);
-      }).catch(err => console.log(err));
+      }).catch(err => {
+        setIsLoading(false);
+        console.log(err);
+      });
     }
   }
 

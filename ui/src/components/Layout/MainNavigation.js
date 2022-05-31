@@ -24,7 +24,7 @@ const MainNavigation = () => {
     <nav className='navbar' role='navigation'>
       <div className='navbar-brand'>
         <Link to='/'>
-          <h2 class='title'>React Node boilerplate</h2>
+          <h2 className='title'>React Node boilerplate</h2>
         </Link>
         <a role='button' className={`navbar-burger ${isOpen ? 'is-active' : ''}`} aria-label='menu' aria-expanded='false' data-target='navbar' onClick={onHamburgerClickHandler}>
             <span aria-hidden='true'></span>

@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import api from '../api/api';
+import { localStorageGet, localStorageRemove, localStorageSave } from '../util/helper-functions';
 
 let logoutTimer;
 
@@ -18,14 +19,15 @@ const calculateRemainingTime = (expirationTime) => {
 }
 
 const retrieveToken = () => {
-    const storedToken = localStorage.getItem('token');
-    const storedExpirationTime = localStorage.getItem('expirationTime');
+    const storedToken = localStorageGet('token');
+    const storedExpirationTime = localStorageGet('expirationTime');
 
     const remainingTime = calculateRemainingTime(storedExpirationTime);
 
     if (remainingTime <= 0) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('expirationTime');
+        localStorageRemove('token');
+        localStorageRemove('expirationTime');
+        localStorageRemove('user');
         return null;
     } else {
         return {
@@ -41,10 +43,14 @@ export const AuthContextProvider = (props) => {
     const [ token, setToken ] = useState(initialToken);
     const userIsLoggedIn = !!token;
 
+    api.defaults.headers.common['x-access-token'] = token;
+
     const logoutHandler = () => {
         delete api.defaults.headers.common['x-access-token'];
         setToken(null);
-        localStorage.removeItem('token');
+        localStorageRemove('token');
+        localStorageRemove('expirationTime');
+        localStorageRemove('user');
 
         if (logoutTimer) {
             clearTimeout(logoutTimer);
@@ -54,8 +60,8 @@ export const AuthContextProvider = (props) => {
     const loginHandler = (token, expirationTime) => {
         api.defaults.headers.common['x-access-token'] = token;
 
-        localStorage.setItem('token', token);
-        localStorage.setItem('expirationTime', expirationTime);
+        localStorageSave('token', token);
+        localStorageSave('expirationTime', expirationTime);
         setToken(token);
 
         const remainingTime = calculateRemainingTime(expirationTime);
